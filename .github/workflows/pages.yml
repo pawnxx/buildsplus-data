@@ -1,0 +1,41 @@
+name: Refresh Builds+ data and publish Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: buildsplus-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Read this repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Fetch current public build packets
+        run: python3 tools/sync.py
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Package the static mirror
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Publish the mirror
+        id: deploy
+        uses: actions/deploy-pages@v5
