@@ -2,9 +2,11 @@
 
 const parameters = new URLSearchParams(location.search);
 const sort = parameters.get("sort");
+const language = parameters.get("lang");
 const hero = parameters.get("hero");
 const sorts = ["default", "rank", "date"];
 const sortKey = "personal-builds-sort-v1";
+const languageKey = "personal-builds-language-v1";
 let frame = 0;
 
 function waitForAcknowledgement() {
@@ -22,6 +24,10 @@ function waitForAcknowledgement() {
 }
 
 async function send(packet) {
+    try {
+        const saved = localStorage.getItem(languageKey);
+        if (saved === "ru" || saved === "en") packet = { ...packet, language: saved };
+    } catch {}
     const id = ++frame;
     const data = encodeURIComponent(JSON.stringify(packet));
     if (data.length > 190000) throw new Error("Snapshot is too large");
@@ -42,6 +48,12 @@ function readSort() {
 }
 
 async function serve() {
+    if ((language === "ru" || language === "en") && hero === null && sort === null) {
+        localStorage.setItem(languageKey, language);
+        await send({ kind: "personal-builds-language", language });
+        return;
+    }
+    if (language !== null) return;
     if (sorts.includes(sort) && hero === null) {
         localStorage.setItem(sortKey, sort);
         await send({ kind: "personal-builds-sort", sort });
