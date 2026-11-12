@@ -12,7 +12,7 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = 'https://179-253-78-167.sslip.io/buildsplus-mirror'
+SOURCE = 'https://179-254-163-44.sslip.io/buildsplus-mirror'
 LIMIT = 512 * 1024
 MODES = ('used', 'high', 'new', 'authors')
 NETWORK_ERRORS = (OSError, ValueError, http.client.HTTPException)
